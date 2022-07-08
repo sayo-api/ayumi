@@ -1,0 +1,21 @@
+{
+  "name": "ayumi-botv1",
+  "description": "Terá futuras atualizações da  Ayumi - Bot (≧▽≦)",
+  "repository": "https://github.com/sayo-api/ayumi",
+  "logo": "https://telegra.ph/file/9c9fbbfb7aeff731ab574.jpg",
+  "keywords": ["java", "bot", "whatsapp-bot", "whatsapp-automation"],
+  "buildpacks": [
+  {
+    "url": "heroku/nodejs"
+  },
+  {
+    "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+  },
+  {
+    "url": "https://github.com/fewerandfaster/heroku-buildpack-imagemagick.git"
+  },
+  {
+    "url": "https://github.com/clhuang/heroku-buildpack-webp-binaries.git"
+  }    
+ ]
+}
