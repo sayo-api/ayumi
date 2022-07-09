@@ -1804,7 +1804,31 @@ reply('este cpf não foi encontrado')
 }
 break
 
-
+case 'grupos': {
+let numberskk = [ '1','2','3','4','5','6','7','8','9','10','11' ] //acrecente mais!  maximo e 60!
+paginas = numberskk[Math.floor(Math.random() * numberskk.length)]
+let ilinkkk = await gp(paginas)
+let linkedgpr = ilinkkk[Math.floor(Math.random() * ilinkkk.length)]
+console.log(linkedgpr)
+const res = await axios.get(linkedgpr.linkk)
+const $ = cheerio.load(res.data)
+console.log($('div.post-thumb').find("amp-img").attr('src'))
+ gptplmt = generateWAMessageFromContent(from, proto.Message.fromObject({
+templateMessage: {
+hydratedTemplate: {
+locationMessage: {
+jpegThumbnail: await getBuffer(linkedgpr.img)},
+hydratedContentText: $('div.col-md-9').find('p').text().trim(),
+hydratedFooterText: $('div.col-md-9').find('h1.pagina-titulo').text().trim(),
+hydratedButtons: [{
+urlButton: {
+ displayText: 'entrar no grupo',
+ url: $('div.post-botao').find('a').attr('href')
+}}, {urlButton: { displayText: null, url: null}}, {urlButton: { displayText: null, url: null}}, {quickReplyButton: { displayText: null, id: null,}}, {quickReplyButton: {  displayText: null,  id: null
+}}]}} }), {userJid: from })
+ await conn.relayMessage(from, gptplmt.message, {messageId: gptplmt.key.id })
+ }
+break
 
 /*case '!0':
 const nomegp = q
