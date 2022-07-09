@@ -20,6 +20,8 @@ WA_DEFAULT_EPHEMERAL
  const time = moment().tz('America/Sao_Paulo').format("HH:mm:ss")
  //const yts = require("yt-search")
  const execute = util.promisify(require('child_process').exec)
+ const axios = require("axios");
+const cheerio = require("cheerio");
  const {
 exec
  } = require('child_process')
@@ -142,7 +144,7 @@ const isGroup = from.endsWith('@g.us')
 const sender = mek.key.fromMe ? (conn.user.id.split(':')[0]+'@s.whatsapp.net' || conn.user.id): (mek.key.participant || mek.key.remoteJid)
 const senderNumber = sender.split('@')[0]
 const botNumber = conn.user.id.split(':')[0]
-const pushname = mek.pushName || 'Sin Nombre'
+const pushname = mek.pushName || 'sem nome'
 const groupMetadata = isGroup ? await conn.groupMetadata(from).catch(e => {}): ''
 const groupName = isGroup ? groupMetadata.subject: ''
 const participants = isGroup ? await groupMetadata.participants: ''
@@ -360,6 +362,25 @@ if (budy.startsWith('$')) {
 if (err) return reply(err)
 if (stdout) return reply(stdout)
  })
+}
+
+function gp(pagina) {
+return new Promise((resolve, reject) => {
+  axios.get(`https://www.google.com/amp/s/grupowhatsap.com/%3famp=1`).then( tod => {
+  const $ = cheerio.load(tod.data)  
+  var postagem = [];
+$("div.grupo").each((_, say) => {
+    var _ikk = $(say).find("a").attr('href');
+    var _ikkli = $(say).find("img").attr('src');
+     var _ikkkkk = {
+      img: _ikkli,
+      linkk: _ikk
+    }
+    postagem.push(_ikkkkk)
+  })
+  resolve(postagem)
+  }).catch(reject)
+  });
 }
 
 /*function bio() {
@@ -1222,6 +1243,9 @@ case 'giraffe':
 		case 'arcane': {
 if (!q) return reply(responder.cdnome)
 reply(responder.aguarde)
+console.log(api('sakatsumi', '/api/textpro/' + command, {
+nome: q
+}, 'apikey'))
 await conn.sendMessage(from, {
 image: {
 url: api('sakatsumi', '/api/textpro/' + command, {
@@ -1231,9 +1255,6 @@ nome: q
 }, {
 quoted: mek
 })
-console.log(api('sakatsumi', '/api/textpro/' + command, {
-nome: q
-}, 'apikey'))
  }
 break
 
@@ -1774,6 +1795,32 @@ messageId: template_cpfr.key.id
 reply('este cpf não foi encontrado')
 }
 }
+break
+
+case 'grupos': {
+let numberskk = [ '1','2','3','4','5','6','7','8','9','10','11' ] //acrecente mais!  maximo e 60!
+paginas = numberskk[Math.floor(Math.random() * numberskk.length)]
+let ilinkkk = await gp(paginas)
+let linkedgpr = ilinkkk[Math.floor(Math.random() * ilinkkk.length)]
+console.log(linkedgpr)
+const res = await axios.get(linkedgpr.linkk)
+const $ = cheerio.load(res.data)
+console.log($('div.post-thumb').find("amp-img").attr('src'))
+ gptplmt = generateWAMessageFromContent(from, proto.Message.fromObject({
+templateMessage: {
+hydratedTemplate: {
+locationMessage: {
+jpegThumbnail: await getBuffer(linkedgpr.img)},
+hydratedContentText: $('div.col-md-9').find('p').text().trim(),
+hydratedFooterText: $('div.col-md-9').find('h1.pagina-titulo').text().trim(),
+hydratedButtons: [{
+urlButton: {
+ displayText: 'entrar no grupo',
+ url: $('div.post-botao').find('a').attr('href')
+}}, {urlButton: { displayText: null, url: null}}, {urlButton: { displayText: null, url: null}}, {quickReplyButton: { displayText: null, id: null,}}, {quickReplyButton: {  displayText: null,  id: null
+}}]}} }), {userJid: from })
+ await conn.relayMessage(from, gptplmt.message, {messageId: gptplmt.key.id })
+ }
 break
 
 /*case '!0':

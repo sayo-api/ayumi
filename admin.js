@@ -26,11 +26,11 @@ faça login nesse site para conseguir sua apikey
 */
 
 global.APIKeys = {
- 'https://sakatsumi.p7api.xyz': 'SUAKEYAQUI',
- 'https://akamev2-api.herokuapp.com': 'SUAKEYAQUI', 
+ 'https://sakatsumi.p7api.xyz': 'sayo_ofc',
+ 'https://akamev2-api.herokuapp.com': 'sayo_ofc', 
 }
 
-global.keyofc = 'sayo_key'
+global.keyofc = 'sayo_ofc'
 
 //═══════[modification]════════\\
 global.prefix = '#'
