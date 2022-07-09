@@ -827,13 +827,6 @@ menu =
 ▢ ⌁ 𖥂 ${prefix}xnxxdl [link] °
 ▢ ⌁ 𖥂 ${prefix}scdl [link] °
 ▢ ╰═══⊷
-╰━━━ ⪨
-
-╭━━ ⪩
-▢ き⃟🌂ᴏᴜᴛʀᴏs🌂⃟ き 
-▢ ╭═══⊷
-▢ ⌁ 𖥂 ${prefix}grupos °
-▢ ╰═══⊷
 ╰━━━ ⪨`
 const template = generateWAMessageFromContent(from, proto.Message.fromObject({
  templateMessage: {
