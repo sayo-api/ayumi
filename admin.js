@@ -15,18 +15,15 @@ const chalk = require('chalk')
 
 //═══════[api]════════\\
 global.APIs = {
- sakatsumi: 'https://sakatsumi.p7api.xyz',
  akame: 'https://akamev2-api.herokuapp.com',
 }
 //═══════[api key]════════\\
 /* 
-°  https://sakatsumi.p7api.xyz  °
 ° https://akamev2-api.herokuapp.com °
 faça login nesse site para conseguir sua apikey
 */
 
 global.APIKeys = {
- 'https://sakatsumi.p7api.xyz': 'sayo_ofc',
  'https://akamev2-api.herokuapp.com': 'sayo_ofc', 
 }
 

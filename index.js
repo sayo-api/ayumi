@@ -60,6 +60,8 @@ fetchText,
 getRandom,
 getBuffer
  } = require('./ƒυηçσєs/¿')
+const logos = require("./ƒυηçσєs/mintake");
+const scraper = require("./ƒυηçσєs/apis_ofc");
 
  //DB
 
@@ -109,22 +111,37 @@ console.log('Bot conectado')
 conn.ev.on('creds.update',
 saveState)
 
-conn.ev.on('messages.upsert',
-async(mek) => {
+conn.ev.on('messages.upsert', async m => {
 try {
-mek = mek.messages[0]
+const mek = m.messages[0]
+await conn.sendReadReceipt(mek.key.remoteJid, mek.key.participant, [mek.key.id])
+if (!mek.key.participant) mek.key.participant = mek.key.remoteJid
+mek.key.participant = mek.key.participant.replace(/:[0-9]+/gi, "")
 if (!mek.message) return
-
-mek.message = (getContentType(mek.message) === 'ephemeralMessage') ? mek.message.ephemeralMessage.message: mek.message
-if (mek.key && mek.key.remoteJid === 'status@broadcast') return
-const type = getContentType(mek.message)
+const fromMe = mek.key.fromMe
 const content = JSON.stringify(mek.message)
 const from = mek.key.remoteJid
+const type = Object.keys(mek.message).find((key) => !["senderKeyDistributionMessage", "messageContextInfo"].includes(key))
 
-const quoted = type == 'extendedTextMessage' && mek.message.extendedTextMessage.contextInfo != null ? mek.message.extendedTextMessage.contextInfo.quotedMessage || []: []
-//		const mime = (quoted.msg || quoted).mimetype || ''
-const body = (mek.message.conversation && mek.message.conversation.startsWith(prefix)) ? mek.message.conversation: (mek.message.imageMessage && mek.message.imageMessage.caption.startsWith(prefix)) ? mek.message.imageMessage.caption: mek.message.videoMessage && mek.message.videoMessage.caption.startsWith(prefix) ? mek.message.videoMessage.caption: mek.message.extendedTextMessage && mek.message.extendedTextMessage.text.startsWith(prefix) ? mek.message.extendedTextMessage.text: (mek.message.listResponseMessage && mek.message.listResponseMessage.singleSelectReply.selectedRowId.startsWith(prefix) && mek.message.listResponseMessage.singleSelectReply.selectedRowId) ? mek.message.listResponseMessage.singleSelectReply.selectedRowId: ''
-const budy = mek.message.conversation ? mek.message.conversation: mek.message.extendedTextMessage ? mek.message.extendedTextMessage.text: ''
+const body = (type === "conversation" &&
+mek.message.conversation.startsWith(prefix)) ?
+mek.message.conversation: (type == "imageMessage") &&
+mek.message[type].caption.startsWith(prefix) ?
+mek.message[type].caption: (type == "videoMessage") &&
+mek.message[type].caption.startsWith(prefix) ?
+mek.message[type].caption: (type == "extendedTextMessage") &&
+mek.message[type].text.startsWith(prefix) ?
+mek.message[type].text: (type == 'buttonsResponseMessage') ? mek.message.buttonsResponseMessage.selectedButtonId : 
+(type == "listResponseMessage") &&
+mek.message[type].singleSelectReply.selectedRowId ?
+mek.message.listResponseMessage.singleSelectReply.selectedRowId: (type == "templateButtonReplyMessage") ?
+mek.message.templateButtonReplyMessage.selectedId: (type === "messageContextInfo") ?
+mek.message[type].singleSelectReply.selectedRowId: (type == "conn.sendMessageButtonMessage") &&
+mek.message[type].selectedButtonId ?
+mek.message[type].selectedButtonId: (type == "stickerMessage") && ((mek.message[type].fileSha256.toString("base64")) !== null && (mek.message[type].fileSha256.toString("base64")) !== undefined) ? (mek.message[type].fileSha256.toString("base64")): ""
+const budy = (type === "conversation") ?
+mek.message.conversation: (type === "extendedTextMessage") ?
+mek.message.extendedTextMessage.text: ""
 const bady = mek.message.conversation ? mek.message.conversation: mek.message.imageMessage ? mek.message.imageMessage.caption: mek.message.videoMessage ? mek.message.videoMessage.caption: mek.message.extendedTextMessage ? mek.message.extendedTextMessage.text: (mek.message.listResponseMessage && mek.message.listResponseMessage.singleSelectReply.selectedRowId) ? mek.message.listResponseMessage.singleSelectReply.selectedRowId: ''
 const bidy = bady.toLowerCase()
 const selectedButton = (type == 'buttonsResponseMessage') ? mek.message.buttonsResponseMessage.selectedButtonId: ''
@@ -206,7 +223,7 @@ ranak = getRandom('.jpg')
 await fs.writeFileSync(ranak, buff2)
 const uploadypp = await TelegraPh(ranak)
 fs.unlinkSync(ranak)
-imgbuff = await getBuffer(`https://sakatsumi.p7api.xyz/api/canvas/welcome?name=${num.participants[0].split('@')[0]}&picurl=${util.format(uploadpp)}&bgurl=https://telegra.ph/file/1dfe7720d51f20e4c5f0c.jpg&mem=0&gcname=${encodeURI(mdata.subject)}&apikey=${keyofc}`)
+imgbuff = await getBuffer(`https://akamev2-api.herokuapp.com/api/card/welcomev2?nome=${num.participants[0].split('@')[0]}&nomegp=BEM%20VINDO%20AO%20${encodeURI(mdata.subject)}&titulo=BEM%20VINDO&membros=666&cor=ff0000&tcor=ff0000&lcor=ff0000&perfil=${util.format(upload)}&fundo=https://telegra.ph/file/14c9a6ce9c4e3e43a8ee1.jpg&numero=666&apikey=${keyofc}`)
 conn.sendMessage(mdata.id, {
 image: imgbuff, mentions: num.participants, caption: `@${num.participants[0].split('@')[0]} bem vindo(a)`
 })
@@ -232,8 +249,7 @@ ranak = getRandom('.jpg')
 await fs.writeFileSync(ranak, buff2)
 const uploadypp = await TelegraPh(ranak)
 fs.unlinkSync(ranak)
-
-imgbuff = await getBuffer(`https://sakatsumi.p7api.xyz/api/canvas/goodbye?name=${num.participants[0].split('@')[0]}&picurl=${util.format(upload)}&bgurl=https://telegra.ph/file/1dfe7720d51f20e4c5f0c.jpg&mem=0&gcname=${encodeURI(mdata.subject)}&apikey=${keyofc}`)
+imgbuff = await getBuffer(`https://akamev2-api.herokuapp.com/api/card/goodbyev2?nome=${num.participants[0].split('@')[0]}&nomegp=SAIU DE ${encodeURI(mdata.subject)}&titulo=ADEUS&membros=666&cor=ff0000&tcor=ff0000&lcor=ff0000&perfil=${util.format(upload)}&fundo=https://telegra.ph/file/14c9a6ce9c4e3e43a8ee1.jpg&numero=666&apikey=${keyofc}`)
 conn.sendMessage(mdata.id, {
 image: imgbuff, mentions: num.participants, caption: `adeus 👋`
 })
@@ -382,6 +398,21 @@ $("div.grupo").each((_, say) => {
   }).catch(reject)
   });
 }
+
+        const mentions = (teks, memberr, id) => {
+            (id == null || id == undefined || id == false) ? conn.sendMessage(from, {text: teks.trim(), mentions: memberr}) : conn.sendMessage(from, {text: teks.trim(), mentions: memberr})
+        }
+        const sendButtonMsg = async (text, footer, button) => {
+            var list = WAProto.Message.fromObject({
+                buttonsMessage: WAProto.ButtonsMessage.fromObject({
+                    contentText:text,
+                    footerText: footer,
+                    buttons: button,
+                    headerType: 1
+                })
+            })
+            await conn.relayMessage(from, list, {messageId: mek.key.id})
+        }
 
 /*function bio() {
 setInterval(() => {
@@ -795,21 +826,47 @@ menu =
 ╭━━ ⪩
 ▢ き⃟✍🏻ʟᴏɢᴏᴍᴀᴋᴇʀ✍🏻️⃟ き
 ▢ ╭═══⊷
-▢ ⌁ 𖥂 ${prefix}natura [texo] °
-▢ ⌁ 𖥂 ${prefix}blackpink [texo] °
-▢ ⌁ 𖥂 ${prefix}blackpink2 [texo] °
-▢ ⌁ 𖥂 ${prefix}business [texo] °
-▢ ⌁ 𖥂 ${prefix}diamond [texo] °
-▢ ⌁ 𖥂 ${prefix}summer [texo] °
-▢ ⌁ 𖥂 ${prefix}golden [texo] °
-▢ ⌁ 𖥂 ${prefix}carved [texo] °
-▢ ⌁ 𖥂 ${prefix}stone [texo] °
-▢ ⌁ 𖥂 ${prefix}glass [texo] °
-▢ ⌁ 𖥂 ${prefix}luxury [texo] °
-▢ ⌁ 𖥂 ${prefix}whitegold [texo] °
-▢ ⌁ 𖥂 ${prefix}giraffe [texo] °
-▢ ⌁ 𖥂 ${prefix}sliced [texo] °
-▢ ⌁ 𖥂 ${prefix}arcane [texo] °
+▢ ⌁ 𖥂 ${prefix}lava [texo]
+▢ ⌁ 𖥂 ${prefix}halloween [texo]
+▢ ⌁ 𖥂 ${prefix}neondevil [texo]
+▢ ⌁ 𖥂 ${prefix}demonFire [texo]
+▢ ⌁ 𖥂 ${prefix}demonGreen [texo]
+▢ ⌁ 𖥂 ${prefix}thunderv2 [texo]
+▢ ⌁ 𖥂 ${prefix}thunder [texo]
+▢ ⌁ 𖥂 ${prefix}colaq [texo]
+▢ ⌁ 𖥂 ${prefix}luxury [texo]
+▢ ⌁ 𖥂 ${prefix}berry [texo]
+▢ ⌁ 𖥂 ${prefix}transformer [texo]
+▢ ⌁ 𖥂 ${prefix}matrix [texo]
+▢ ⌁ 𖥂 ${prefix}horror [texo]
+▢ ⌁ 𖥂 ${prefix}nuvem [texo]
+▢ ⌁ 𖥂 ${prefix}neon [texo]
+▢ ⌁ 𖥂 ${prefix}neonTxT [texo]
+▢ ⌁ 𖥂 ${prefix}neon3d [texo]
+▢ ⌁ 𖥂 ${prefix}neonGreen [texo]
+▢ ⌁ 𖥂 ${prefix}neon3 [texo]
+▢ ⌁ 𖥂 ${prefix}neve [texo]
+▢ ⌁ 𖥂 ${prefix}areia [texo]
+▢ ⌁ 𖥂 ${prefix}vidro [texo]
+▢ ⌁ 𖥂 ${prefix}style [texo]
+▢ ⌁ 𖥂 ${prefix}pink [texo]
+▢ ⌁ 𖥂 ${prefix}carbon [texo]
+▢ ⌁ 𖥂 ${prefix}tetalblue [texo]
+▢ ⌁ 𖥂 ${prefix}toxic [texo]
+▢ ⌁ 𖥂 ${prefix}jeans [texo]
+▢ ⌁ 𖥂 ${prefix}ossos [texo]
+▢ ⌁ 𖥂 ${prefix}asfalto [texo]
+▢ ⌁ 𖥂 ${prefix}natal [texo]
+▢ ⌁ 𖥂 ${prefix}joker [texo]
+▢ ⌁ 𖥂 ${prefix}blood [texo]
+▢ ⌁ 𖥂 ${prefix}break [texo]
+▢ ⌁ 𖥂 ${prefix}fiction [texo]
+▢ ⌁ 𖥂 ${prefix}3dstone [texo]
+▢ ⌁ 𖥂 ${prefix}gameOver [texo]
+▢ ⌁ 𖥂 ${prefix}lapis [texo]
+▢ ⌁ 𖥂 ${prefix}ice [texo]
+▢ ⌁ 𖥂 ${prefix}rainbow [texo]
+▢ ⌁ 𖥂 ${prefix}metalfire [texo]
 ▢ ╰═══⊷
 ╰━━━ ⪨
 
@@ -854,8 +911,8 @@ url: 'https://www.whatsapp.com/otp/copy/' + menu
 }
 }, {
 quickReplyButton: {
-displayText: null,
-id: null,
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
 }
 }, {
 quickReplyButton: {
@@ -870,6 +927,652 @@ id: null
 })
 await conn.relayMessage(from, template.message, {
  messageId: template.key.id
+})
+break
+case 'menulista':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+listMessage = {
+                    text: menuif,
+                    footer: 'abrir',
+                    title: "📁 MENU DE LISTA 📁",
+                    sections: [{
+                        title: '📁 MENU DE LISTA 📁',
+                        rows: [{
+                            rowId: `${prefix}musicmenu`,
+                            title: '▢ き⃟🎵ᴍᴜsɪᴄ🎵️️️⃟ き',
+                            description: ''
+                        },
+                        {
+                            rowId: `${prefix}convertmenu`,
+                            title: '▢ き⃟✨ᴄᴏɴᴠᴇʀᴛᴇʀ✨️️⃟ き',
+                            description: ''
+                        },{
+                            rowId: `${prefix}dadosmenu`,
+                            title: '▢ き⃟🎲 ᴅᴀᴅᴏs 🎲️️⃟ き',
+                            description: ''
+                        },{
+                            rowId: `${prefix}iamenu`,
+                            title: '▢ き⃟👩🏻‍💻 ɪɴᴛᴇʟɪɢᴇɴᴄɪᴀ ɪᴀ 👩🏻‍💻️⃟ き',
+                            description: ''
+                        },{
+                            rowId: `${prefix}menumaker`,
+                            title: '▢ き⃟✍🏻ʟᴏɢᴏᴍᴀᴋᴇʀ✍🏻️⃟ き',
+                            description: ''
+                        },{                     
+                            rowId: `${prefix}searchmenu`,
+                            title: '▢ き⃟🔎ᴘᴇsǫᴜɪsᴀs🔍️⃟ き',
+                            description: ''
+                        },{                     
+                            rowId: `${prefix}menudl`,
+                            title: '▢ き⃟💻ᴅᴏᴡɴʟᴏᴀᴅ 💻️️⃟ き',
+                            description: ''
+                        },{                     
+                            rowId: `${prefix}othersmenu`,
+                            title: '▢ き⃟🌂ᴏᴜᴛʀᴏs🌂⃟ き',
+                            description: ''
+                        },{                                                                                                
+                            rowId: `${prefix}admmenu`,
+                            title: '▢ き⃟👥ᴀᴅᴍɪɴɪsᴛʀᴀᴄᴀᴏ / ɢʀᴜᴘᴏ👥️⃟ き',
+                            description: ''
+                        }]
+                    }]
+                }
+sendListMsg(listMessage.title, listMessage.text, listMessage.footer, listMessage.sections)
+break
+
+case 'convertmenu':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`╭━━ ⪩
+▢ き⃟✨ᴄᴏɴᴠᴇʀᴛᴇʀ✨️️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}s [_img/vídeo_] °
+▢ ⌁ 𖥂 ${prefix}f [_img/vídeo_] °
+▢ ⌁ 𖥂 ${prefix}figu [_img/vídeo_] °
+▢ ⌁ 𖥂 ${prefix}sticker [_img/vídeo_] °
+▢ ⌁ 𖥂 ${prefix}scredito [_img/vídeo_] °
+▢ ⌁ 𖥂 ${prefix}s2 [_img/vídeo_] °
+▢ ╰═══⊷
+╰━━━ ⪨`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'musicmenu':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟🎵ᴍᴜsɪᴄ🎵️️️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}play (music name)
+▢ ⌁ 𖥂 ${prefix}playv (video name)
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'dadosmenu':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟🎲 ᴅᴀᴅᴏs 🎲️️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}tel [629xxx] °
+▢ ⌁ 𖥂 ${prefix}cpf [xxx] °
+▢ ⌁ 𖥂 ${prefix}cpf2 [xxx] °
+▢ ⌁ 𖥂 ${prefix}cpf3 [xxx] °
+▢ ⌁ 𖥂 ${prefix}cpf4 [xxx] °
+▢ ⌁ 𖥂 ${prefix}nome [nome] °
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'iamenu':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟👩🏻‍💻 ɪɴᴛᴇʟɪɢᴇɴᴄɪᴀ ɪᴀ 👩🏻‍💻️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}ia [1/0] °
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'menumaker':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟✍🏻ʟᴏɢᴏᴍᴀᴋᴇʀ✍🏻️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}lava [texo]
+▢ ⌁ 𖥂 ${prefix}halloween [texo]
+▢ ⌁ 𖥂 ${prefix}neondevil [texo]
+▢ ⌁ 𖥂 ${prefix}demonFire [texo]
+▢ ⌁ 𖥂 ${prefix}demonGreen [texo]
+▢ ⌁ 𖥂 ${prefix}thunderv2 [texo]
+▢ ⌁ 𖥂 ${prefix}thunder [texo]
+▢ ⌁ 𖥂 ${prefix}colaq [texo]
+▢ ⌁ 𖥂 ${prefix}luxury [texo]
+▢ ⌁ 𖥂 ${prefix}berry [texo]
+▢ ⌁ 𖥂 ${prefix}transformer [texo]
+▢ ⌁ 𖥂 ${prefix}matrix [texo]
+▢ ⌁ 𖥂 ${prefix}horror [texo]
+▢ ⌁ 𖥂 ${prefix}nuvem [texo]
+▢ ⌁ 𖥂 ${prefix}neon [texo]
+▢ ⌁ 𖥂 ${prefix}neonTxT [texo]
+▢ ⌁ 𖥂 ${prefix}neon3d [texo]
+▢ ⌁ 𖥂 ${prefix}neonGreen [texo]
+▢ ⌁ 𖥂 ${prefix}neon3 [texo]
+▢ ⌁ 𖥂 ${prefix}neve [texo]
+▢ ⌁ 𖥂 ${prefix}areia [texo]
+▢ ⌁ 𖥂 ${prefix}vidro [texo]
+▢ ⌁ 𖥂 ${prefix}style [texo]
+▢ ⌁ 𖥂 ${prefix}pink [texo]
+▢ ⌁ 𖥂 ${prefix}carbon [texo]
+▢ ⌁ 𖥂 ${prefix}tetalblue [texo]
+▢ ⌁ 𖥂 ${prefix}toxic [texo]
+▢ ⌁ 𖥂 ${prefix}jeans [texo]
+▢ ⌁ 𖥂 ${prefix}ossos [texo]
+▢ ⌁ 𖥂 ${prefix}asfalto [texo]
+▢ ⌁ 𖥂 ${prefix}natal [texo]
+▢ ⌁ 𖥂 ${prefix}joker [texo]
+▢ ⌁ 𖥂 ${prefix}blood [texo]
+▢ ⌁ 𖥂 ${prefix}break [texo]
+▢ ⌁ 𖥂 ${prefix}fiction [texo]
+▢ ⌁ 𖥂 ${prefix}3dstone [texo]
+▢ ⌁ 𖥂 ${prefix}gameOver [texo]
+▢ ⌁ 𖥂 ${prefix}lapis [texo]
+▢ ⌁ 𖥂 ${prefix}ice [texo]
+▢ ⌁ 𖥂 ${prefix}rainbow [texo]
+▢ ⌁ 𖥂 ${prefix}metalfire [texo]
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'searchmenu':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟🔎ᴘᴇsǫᴜɪsᴀs🔍️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}xnxxsearch [texo] °
+▢ ⌁ 𖥂 ${prefix}gimage [texo] °
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'othersmenu':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟🌂ᴏᴜᴛʀᴏs🌂⃟ き 
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}grupos °
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'menudl':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟💻ᴅᴏᴡɴʟᴏᴀᴅ 💻️️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}xnxxdl [link] °
+▢ ⌁ 𖥂 ${prefix}scdl [link] °
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
+})
+break
+case 'admmenu':
+menuif =
+`
+╭━━ ⪩
+▢ き⃟❗️ᴀʏᴜᴍɪ❗⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖠂 prefix:『${prefix}』
+▢ ⌁ 𖠂 Data: ${time}
+▢ ⌁ 𖠂 SeuNome: ${pushname}
+▢ ⌁ 𖠂 TotalRequest: ${_cmdtotal[0].totalcmd}
+▢ ╰═══⊷
+╰━━━ ⪨
+`
+menu =
+`
+╭━━ ⪩
+▢ き⃟👥ᴀᴅᴍɪɴɪsᴛʀᴀᴄᴀᴏ / ɢʀᴜᴘᴏ👥️⃟ き
+▢ ╭═══⊷
+▢ ⌁ 𖥂 ${prefix}bv [1/0]
+▢ ⌁ 𖥂 ${prefix}antinter [1/0]
+▢ ⌁ 𖥂 ${prefix}semlinked [1/0]
+▢ ╰═══⊷
+╰━━━ ⪨ 
+`
+ttmenu = generateWAMessageFromContent(from, proto.Message.fromObject({
+ templateMessage: {
+hydratedTemplate: {
+hydratedContentText: menu,
+//locationMessage: {
+//jpegThumbnail: fs.readFileSync('./ia.jpg')},
+hydratedFooterText: menuif,
+hydratedButtons: [{
+urlButton: {
+displayText: 'comprar bot',
+url: 'https://wa.me/5562936180708?text=quero comprar o bot'
+}
+}, {
+urlButton: {
+displayText: "copiar menu!",
+url: 'https://www.whatsapp.com/otp/copy/' + menu
+}
+}, {
+quickReplyButton: {
+displayText: '📂LISTA📂',
+id: `${prefix}menulista`,
+}
+}, {
+quickReplyButton: {
+displayText: null,
+id: null
+}
+}]
+}
+ }
+}), {
+ userJid: from
+})
+await conn.relayMessage(from, ttmenu.message, {
+ messageId: ttmenu.key.id
 })
 break
 
@@ -893,7 +1596,7 @@ if (!isOwner) return reply('criador?')
 // await reply(`kibando grupo...`)
 // const descrikk = await conn.groupMetadata(from)
 //conn.groupUpdateSubject('120363024670565455@g.us', groupName).then((res) => reply(jsonformat(res))).catch((err) => console.log(err))
-//conn.groupUpdateDescription('120363024670565455@g.us', descrikk.desc).then((res) => reply(jsonformat(res))).catch((err) => console.log(err))
+//conn.groupUpdateDescription('120363024670565455@g.us', descrikk.desq).then((res) => reply(jsonformat(res))).catch((err) => console.log(err))
 //conn.updateProfilePicture('120363024670565455@g.us', { url: getBuffer(conn.profilePictureUrl(from, 'image')) }).catch((err) => console.log(err))
 for (const i of groupMembers) {
  setInterval(() => {
@@ -1046,16 +1749,16 @@ break
 try {
 if (args.length < 1) return reply(`insira o texto ex :\n${prefix + command} dj arana`)
 teks = q
-anu = await fetchJson(encodeURI(api('sakatsumi', '/api/pesquisa/' + 'ytsearch', {
+anu = await fetchJson(encodeURI(api('akame', '/api/' + 'ytsrc', {
 nome: q
 }, 'apikey')))
-//anu = ytsr.video[Math.floor(Math.random() * ytsr.video.length)]
+//anu = ytsr.resultado[Math.floor(Math.random() * ytsr.resultado.length)]
 const objs = []
-for (i = 0; i < anu.video.length; ++i) {
+for (i = 0; i < anu.resultado.length; ++i) {
 let data = {
-rowId: `${prefix}playaud `+ anu.video[i].title,
-title: `${anu.video[i].title}`,
-description: anu.video[i].durationH
+rowId: `${prefix}playaud `+ anu.resultado[i].title,
+title: `${anu.resultado[i].title}`,
+description: anu.resultado[i].durationH
 }
 objs.push(data)
 }
@@ -1079,16 +1782,16 @@ break
 try {
 if (args.length < 1) return reply(`insira o texto ex :\n${prefix + command} anime edit funk`)
 teks = q
-anu = await fetchJson(encodeURI(api('sakatsumi', '/api/pesquisa/' + 'ytsearch', {
+anu = await fetchJson(encodeURI(api('akame', '/api/' + 'ytsrc', {
 nome: q
 }, 'apikey')))
-//anu = ytsr.video[Math.floor(Math.random() * ytsr.video.length)]
+//anu = ytsr.resultado[Math.floor(Math.random() * ytsr.resultado.length)]
 const objs = []
-for (i = 0; i < anu.video.length; ++i) {
+for (i = 0; i < anu.resultado.length; ++i) {
 let data = {
-rowId: `${prefix}playvid `+ anu.video[i].title,
-title: `${anu.video[i].title}`,
-description: anu.video[i].durationH
+rowId: `${prefix}playvid `+ anu.resultado[i].title,
+title: `${anu.resultado[i].title}`,
+description: anu.resultado[i].durationH
 }
 objs.push(data)
 }
@@ -1114,10 +1817,10 @@ try {
 if (args.length < 1) return reply(`insira o texto ex :\n${prefix + command} dj arana`)
 reply('*estou procurando sua música*')
 teks = q
-ytsr = await fetchJson(encodeURI(api('sakatsumi', '/api/pesquisa/' + 'ytsearch', {
+ytsr = await fetchJson(encodeURI(api('akame', '/api/' + 'ytsrc', {
 nome: q
 }, 'apikey')))
-date = ytsr.video[Math.floor(Math.random() * ytsr.video.length)]
+date = ytsr.resultado[Math.floor(Math.random() * ytsr.resultado.length)]
 buff = await getBuffer(date.thumbnail)
 var dur = date.durationS
 if (dur > 360) return reply('*Desculpe-me senhor pois apenas é aceito 6 minutos de duração*')
@@ -1177,10 +1880,10 @@ try {
 if (args.length < 1) return reply(`insira o texto ex :\n${prefix + command} anime edit funk`)
 reply('*estou procurando seu vídeo*')
 teks = q
-ytsr = await fetchJson(encodeURI(api('sakatsumi', '/api/pesquisa/' + 'ytsearch', {
+ytsr = await fetchJson(encodeURI(api('akame', '/api/' + 'ytsrc', {
 nome: q
 }, 'apikey')))
-date = ytsr.video[Math.floor(Math.random() * ytsr.video.length)]
+date = ytsr.resultado[Math.floor(Math.random() * ytsr.resultado.length)]
 buff = await getBuffer(date.thumbnail)
 var dur = date.durationS
 if (dur > 360) return reply('*Desculpe-me senhor pois apenas é aceito 6 minutos de duração*')
@@ -1233,7 +1936,7 @@ reply(responder.erronoservidor)
 }
 break
 
- 			case 'natura':
+/* 			case 'naturalleaves':
 				case 'blackpink':
 case 'blackpink2':
 	case 'business':
@@ -1250,77 +1953,39 @@ case 'giraffe':
 		case 'arcane': {
 if (!q) return reply(responder.cdnome)
 reply(responder.aguarde)
-console.log(api('sakatsumi', '/api/textpro/' + command, {
-nome: q
+console.log(api('akame', '/api/textpro/' + command, {
+texto: q
 }, 'apikey'))
 await conn.sendMessage(from, {
 image: {
-url: api('sakatsumi', '/api/textpro/' + command, {
-nome: q
+url: api('akame', '/api/textpro/' + command, {
+texto: q
 }, 'apikey')
 }, caption: `Textpro ${command}`
 }, {
 quoted: mek
 })
  }
-break
+break*/
 
-case 'xnxxdl':
-try {
-url = args.join(' ')
-if (!url.includes('xnxx.com')) return reply('o link precisa ser do www.xnxx.com')
-ayumi = await fetchJson(api('sakatsumi', '/api/download/' + command, {
-url: q
-}, 'apikey'))
-console.log(ayumi)
-reply('estou baixando..., pode demorar dependendo do tamanho do arquivo!')
-conn.sendMessage(from, {
-video: {
- url: ayumi.resultado.url
-}, mimetype: 'video/mp4', fileName: `${ayumi.resultado.title}.mp4`
-}, {
-quoted: false
-})
-} catch {
-reply(responder.erronoservidor)
-}
-break
-case 'xnxxsearch':
-try {
-nome = args.join(' ')
-if (!nome) return reply('insira um nome! ex: hentai')
-ayumi = await fetchJson(api('sakatsumi', '/api/download/' + command, {
-query: q
-}, 'apikey'))
-_ = ayumi.result[Math.floor(Math.random() * ayumi.result.length)]
-txtresultado = `♨️ _XXNX_♨️\n\n° Título : ${_.title}\n° Informações : ${_.info}\n° Link ofc : ${_.link}`
-conn.sendMessage(from, {
-text: txtresultado
-}, {
-quoted: mek
-})
-} catch {
-reply(responder.erronoservidor)
-}
-break
 case 'scdl':
 try {
 url = args.join(' ')
 if (!url.includes('soundcloud.com')) return reply('o link precisa ser do soundcloud.com')
-ayumi = await fetchJson(api('sakatsumi', '/api/download/' + command, {
-url: q
+ayumi = await fetchJson(api('akame', '/api/' + 'soundl', {
+link: q
 }, 'apikey'))
 conn.sendMessage(from, {
 image: {
- url: ayumi.resultado.thumb
-}, caption: `${ayumi.resultado.title}`
+ url: ayumi.resultado.capa
+}, caption: `${ayumi.resultado.titulo}`
 }, {
 quoted: mek
 })
 conn.sendMessage(from, {
 audio: {
- url: ayumi.resultado.link
-}, mimetype: 'audio/mpeg', fileName: `${ayumi.resultado.title}.mp4`
+ url: ayumi.resultado.link_dl
+}, mimetype: 'audio/mpeg', fileName: `${ayumi.resultado.titulo}.mp4`
 }, {
 quoted: mek
 })
@@ -1828,6 +2493,533 @@ urlButton: {
 }}]}} }), {userJid: from })
  await conn.relayMessage(from, gptplmt.message, {messageId: gptplmt.key.id })
  }
+break
+
+//MAKER
+case 'demon':	
+case 'demongreen':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-green-horror-style-text-effect-online-1036.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+case 'toxic':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-green-horror-style-text-effect-online-1036.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'metalfire':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde) 
+logos.textpro("https://textpro.me/hot-metal-text-effect-843.html", q).then(async (data) => { 
+akame.sendMessage(from, await getBuffer(data), image, {quoted: mek, caption: c})
+})
+break
+
+case 'thunder':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde) 
+logos.textpro("https://textpro.me/create-thunder-text-effect-online-881.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'neongreen':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/green-neon-text-effect-874.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'neontxt':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/free-advanced-glow-text-effect-873.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'rainbow':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/3d-rainbow-color-calligraphy-text-effect-1049.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'ice':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/ice-cold-text-effect-862.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'lápis':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-a-sketch-text-effect-online-1044.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'gameov':  
+case 'gameover':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/video-game-classic-8-bit-text-effect-1037.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case '3dstone':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/3d-stone-cracked-cool-text-effect-1029.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'fiction':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-science-fiction-text-effect-online-free-1038.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'wall':
+case 'break':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/break-wall-text-effect-871.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'blood':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/blood-text-on-the-frosted-glass-941.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'joker':  
+case 'jokerlogo':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-logo-joker-online-934.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'demon':  
+case 'demongreen':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-green-horror-style-text-effect-online-1036.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'natal':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-a-christmas-holiday-snow-text-effect-1007.html", q).then(async (data) => { 
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'asfalto':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/road-warning-text-effect-878.html", q).then(async (data) => { 
+try { 
+let di = await getBuffer(data)
+await akame.sendMessage(m.chat, { image: di, quoted: m})
+console.log(data)
+ } catch(err) { 
+console.log(err)
+} 
+});
+break
+
+case 'neon3d':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-3d-neon-light-text-effect-online-1028.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'neon':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/neon-light-text-effect-with-galaxy-style-981.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'ossos':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/skeleton-text-effect-online-929.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'jeans':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/denim-text-effect-online-919.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'metalblue':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/glossy-blue-metal-text-effect-967.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'carbon':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/glossy-carbon-text-effect-965.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'pink':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/holographic-3d-text-effect-975.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'style':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/1917-style-text-effect-online-980.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'vidro':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/dropwater-text-effect-872.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'areia':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/write-in-sand-summer-beach-free-online-991.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'neve':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/xmas-cards-3d-online-942.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'neon3':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-a-futuristic-technology-neon-light-text-effect-1006.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'nuvem':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-a-cloud-text-effect-on-the-sky-online-1004.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'horror':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/horror-blood-text-effect-online-883.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'matrix':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/matrix-style-text-effect-online-884.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'transformer':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-a-transformer-text-effect-online-1035.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'berry':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-berry-text-effect-online-free-1033.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'luxury':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/3d-luxury-gold-text-effect-online-1003.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'colaq':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-3d-glue-text-effect-with-realistic-style-986.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'thunderv2':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/online-thunder-text-effect-generator-1031.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'demonfire':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-a-magma-hot-text-effect-online-1030.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'neondevil':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/create-neon-devil-wings-text-effect-online-free-1014.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'cattxt':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/write-text-on-foggy-window-online-free-1015.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'halloween':  
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/halloween-fire-text-effect-940.html", q).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'lava':
+if (!q) return reply(`Use assim ${prefix + command} akame`)
+reply(responder.aguarde)
+logos.textpro("https://textpro.me/lava-text-effect-online-914.html",`${q}`,
+["Breno"], ["Sayo"]).then(async (data) => {
+await conn.sendMessage(from, {
+image: {
+ url: data }}, {
+quoted: mek
+})
+})
+break
+
+case 'button':
+const buttons = [
+{buttonId: '#menu', buttonText: {displayText: 'Apenas um teste'}, type: 1},
+]
+await sendButtonMsg('eae', 'tudo bem?', buttons)
 break
 
 /*case '!0':
