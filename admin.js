@@ -1,4 +1,4 @@
-//═══════[© Ayumi 1.0 MD]════════\\
+//═══════[© Ayumi 1.1 MD]════════\\
 //                             °°°
 //~ ° opa, bão? esse código e a versão gratis do bot.  °
 //~ ° então você só poderá modificar essa parte aqui.°
@@ -8,7 +8,7 @@
 //~ °     https://wa.me/5562936180708.
 //~ ° alguma dúvida na instação? contate-me.              °
 //                             °°°
-//═══════[© Ayumi 1.0 MD]═════════\\
+//═══════[© Ayumi 1.1 MD]═════════\\
 
 const fs = require('fs')
 const chalk = require('chalk')
@@ -38,11 +38,13 @@ global.nomedono = ['breno']
 global.idgrupo = ['breno']
 global.auutor = 'breno ' //nome dos créditos da figurinha > autor
 global.pacote = 'ayumi ofc ' //nome dos créditos da figurinha > pacote
+global.delayantispamcmd = '3' //padrão e 5 segundos
 global.responder = {
  pronto: 'obrigado por esperar, aqui esta o resultado!',
  admin: 'este recurso e especial para admin do grupo',
  criador: 'este recurso e especial para o programador do bot',
  grupo: 'este recurso só pode usar em grupos',
+ botadm: 'preciso ter adm no grupo!', 
  privado: 'opa, você não podr usar aqui no grupo, somente no meu pv!',
  aguarde: 'estou processando o comando',
  erronoservidor: 'ocorreu um erro no servidor interno',
