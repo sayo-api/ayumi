@@ -1,6 +1,6 @@
 {
  "scripts": {
-  "start": "node index.js"
+  "start": "sh iniciar.sh"
  },
  "dependencies": {
   "@adiwajshing/baileys": "^4.2.0",

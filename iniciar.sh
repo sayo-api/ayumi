@@ -5,6 +5,6 @@ do
 echo "$ {
 	GREEN
 } iniciando..."
-npm start
+node index.js
 sleep 1
 done
