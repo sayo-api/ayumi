@@ -31,14 +31,14 @@
 > pkg install libwebp
 > git clone https://github.com/sayo-api/ayumi
 > cd ayumi
-> npm i -no-bin-links
-> sh iniciar.sh
+> npm i
+> node run.js
 # para o sdcard (arquivo baixado)
 > cd /sdcard
 > cp -r ayumi $HOME
 > cd ayumi
-> npm i -no-bin-links
-> sh iniciar.sh
+> npm i
+> npm start
 ```
 
 # Rodar no heroku
