@@ -35,7 +35,6 @@
 > sh iniciar.sh
 # para o sdcard (arquivo baixado)
 > cd /sdcard
-> cp -r ayumi $HOME
 > cd ayumi
 > npm i -no-bin-links
 > sh iniciar.sh
