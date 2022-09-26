@@ -19,16 +19,16 @@ const chalk = require('chalk')
 
 //═══════[api]════════\\
 global.APIs = {
- akame: 'https://akamev2-api.herokuapp.com',
+ akame: 'https://ayu-api.cf',
 }
 //═══════[api key]════════\\
 /* 
-° https://akamev2-api.herokuapp.com °
+° https://ayu-api.cf °
 faça login nesse site para conseguir sua apikey
 */
 
 global.APIKeys = {
- 'https://akamev2-api.herokuapp.com': 'sayo_ofc', 
+ 'https://ayu-api.cf': 'sayo_ofc', 
 }
 
 global.keyofc = 'sayo_ofc'
