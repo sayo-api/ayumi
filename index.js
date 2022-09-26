@@ -69,7 +69,7 @@ getRandom,
 getBuffer
  } = require('./ƒυηçσєs/¿')
  const logos = require("./ƒυηçσєs/mintake");
- const scraper = require("./ƒυηçσєs/apis_ofc");
+// const scraper = require("./ƒυηçσєs/apis_ofc");
  const xfar = require('./ƒυηçσєs/apis2');
  const hxz = require('./ƒυηçσєs/apis');
  const usedCommandRecently = new Set()
