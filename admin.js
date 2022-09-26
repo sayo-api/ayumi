@@ -12,7 +12,7 @@
 
 //CASO QUEIRA ADQUIRIR AS APIS DE PUXAR DADOS PARA USAR NO BOT ME CONTATE PELO WHATSAPP
 
-https://wa.me/5562936180708
+//https://wa.me/5562936180708
 
 const fs = require('fs')
 const chalk = require('chalk')
