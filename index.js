@@ -131,7 +131,7 @@ conn.ev.on('messages.upsert',
  async m => {
 try {
  const mek = m.messages[0]
- await conn.sendReadReceipt(mek.key.remoteJid, mek.key.participant, [mek.key.id])
+// await conn.sendReadReceipt(mek.key.remoteJid, mek.key.participant, [mek.key.id])
  if (!mek.key.participant) mek.key.participant = mek.key.remoteJid
  mek.key.participant = mek.key.participant.replace(/:[0-9]+/gi, "")
  if (!mek.message) return
