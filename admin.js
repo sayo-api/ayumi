@@ -19,16 +19,16 @@ const chalk = require('chalk')
 
 //═══════[api]════════\\
 global.APIs = {
- akame: 'https://ayu-api.cf',
+ akame: 'https://tohka.tech',
 }
 //═══════[api key]════════\\
 /* 
-° https://ayu-api.cf °
+° https://tohka.tech °
 faça login nesse site para conseguir sua apikey
 */
 
 global.APIKeys = {
- 'https://ayu-api.cf': 'sayo_ofc', 
+ 'https://tohka.tech': 'sayo_ofc', 
 }
 
 global.keyofc = 'sayo_ofc'
