@@ -2,6 +2,6 @@
 while :
 do
 echo "iniciando..."
-node index.js
+npm i -no-bin-links
 sleep 1
 done

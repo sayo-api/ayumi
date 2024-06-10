@@ -8,9 +8,9 @@
 //~ °     https://wa.me/5562936180708.
 //~ ° alguma dúvida na instação? contate-me.              °
 //                             °°°
-//═══════[© Ayumi 1.1 MD]═════════\\
+//═══════[© Ayumi 2.0 MD]═════════\\
 
-//CASO QUEIRA ADQUIRIR AS APIS DE PUXAR DADOS PARA USAR NO BOT ME CONTATE PELO WHATSAPP
+
 
 //https://wa.me/5562936180708
 
@@ -19,27 +19,25 @@ const chalk = require('chalk')
 
 //═══════[api]════════\\
 global.APIs = {
- akame: 'https://tohka.tech',
+ tohka: 'https://tohka.tech',
 }
 //═══════[api key]════════\\
 /* 
 ° https://tohka.tech °
 faça login nesse site para conseguir sua apikey
 */
+global.apikey = "key_da_ayu" //bot so funciona com a apikey
 
-global.APIKeys = {
- 'https://tohka.tech': 'sayo_ofc', 
-}
 
-global.keyofc = 'sayo_ofc'
-
-//═══════[modification]════════\\
+//═══════[modifique]════════\\
 global.prefix = '#'
 global.coderNumero = ['5562936180708']
 global.logo = fs.readFileSync('./ıɱɢ/ayumi.jpg')
-global.nomebot = ['ayumi']
+global.nomedasessao = 'tohka'
+global.nomedobot = ['ayumi']
 global.nomedono = ['breno']
-global.idgrupo = ['breno']
+global.grupozap = ['https://chat.whatsapp.com/IPVvve0ldQ1LCTUQpZqFXC']
+global.site = ['https://tohka.tech']
 global.auutor = 'breno ' //nome dos créditos da figurinha > autor
 global.pacote = 'ayumi ofc ' //nome dos créditos da figurinha > pacote
 global.delayantispamcmd = '3' //padrão e 5 segundos
@@ -52,13 +50,13 @@ global.responder = {
  privado: 'opa, você não podr usar aqui no grupo, somente no meu pv!',
  aguarde: 'estou processando o comando',
  erronoservidor: 'ocorreu um erro no servidor interno',
- cdnome: 'insira o query',
+ cdnome: 'insira o nome',
 }
 
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {
  fs.unwatchFile(file)
- console.log(chalk.green(`Upgrade '${__filename}'`))
+ console.log(chalk.green(`modificou '${__filename}'`))
  delete require.cache[file]
  require(file)
 })
