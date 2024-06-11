@@ -21,7 +21,19 @@ const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream
  const _semlinked = JSON.parse(fs.readFileSync('./∂αтαвαsє/_semlinked.json'))
  const _cmdtotal = JSON.parse(fs.readFileSync('./∂αтαвαsє/totalcmd.json'))
  const antispamcmd = JSON.parse(fs.readFileSync('./∂αтαвαsє/_semspam.json'))
- 
+ const express = require('express');
+ const app = express();
+
+
+app.get('/', async (req, res) => {
+  res.send("AYUMI bot")
+});
+
+
+
+const porta = process.env.PORT || 5000;
+app.listen(porta, () => console.log("site Online na porta:", porta));
+
   const {
 color,
 bgcolor
