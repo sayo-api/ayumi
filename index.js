@@ -24,7 +24,16 @@ const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream
  const express = require('express');
  const app = express();
 
-
+function naodormeporra() {
+  axios.get('https://ayumi-botz.onrender.com/')
+   .then(response => {
+      console.log("acordando");
+    })
+   .catch(error => {
+      console.error(error);
+    });
+}
+setInterval(naodormeporra, 13 * 60 * 1000);
 app.get('/', async (req, res) => {
   res.send("AYUMI bot")
 });
